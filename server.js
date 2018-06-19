@@ -28,5 +28,4 @@ app.get('/api/users', (req, res, next) => {
     .catch(next);
 });
 
-
 app.listen(PORT, () => console.log('server running...'));
