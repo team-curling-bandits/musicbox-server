@@ -15,10 +15,10 @@ client.query(`
        comments VARCHAR(1024)
    );
 `)
-.then(
+  .then(
     () => console.log('create tables complete'),
     err => console.log(err)
-)
-.then(() => {
+  )
+  .then(() => {
     client.end();
-});
+  });
