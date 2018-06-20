@@ -11,8 +11,18 @@ app.use(cors());
 app.use(express.json());
 
 const client = require('./db-client');
+const auth = (req, res, next) => {
+  const id = req.get('Authorization');
+  if(!id || isNaN(id)) {
+    next('No Authentication');
+    return;
+  }
 
-app.get('/api/users', (req, res, next) => {
+  req.userId = +id;
+  next();
+};
+
+app.get('/api/users', auth, (req, res, next) => {
 
   client.query(`
     SELECT  
@@ -28,7 +38,7 @@ app.get('/api/users', (req, res, next) => {
     .catch(next);
 });
 
-app.get('/api/savedsongs', (req, res, next) => {
+app.get('/api/savedsongs', auth, (req, res, next) => {
   client.query(`
   SELECT * FROM savedsongs;
   `)
@@ -37,7 +47,7 @@ app.get('/api/savedsongs', (req, res, next) => {
     });
 });
 
-app.get('/api/users/:id', (req, res, next) => {
+app.get('/api/users/:id', auth, (req, res, next) => {
   const userPromise = client.query(`
   
   SELECT id, name, email, password
@@ -71,5 +81,83 @@ app.get('/api/users/:id', (req, res, next) => {
     });
 });
 
+app.post('/api/auth/signup', (req, res, next) => {
+  const body = req.body;
+  const email = body.email;
+  const password = body.password;
+
+  if(!email || !password) {
+    next('email and password are required');
+  }
+
+  client.query(`
+    select count(*)
+    from users
+    where email = $1
+  `,
+  [email])
+    .then(results => {
+      if(results.rows[0].count > 0) {
+        throw new Error('Email already exists');
+      }
+
+      return client.query(`
+        insert into users (email, password, name)
+        values ($1, $2, $3)
+        returning id, email, name
+      `,
+      [email, password, body.name]);
+    })
+    .then(results => {
+      const row = results.rows[0];
+      res.send({ 
+        id: row.id,
+        email: row.email,
+        name: row.name
+      });
+    })
+    .catch(next);
+
+});
+
+app.post('/api/auth/signin', (req, res, next) => {
+  const body = req.body;
+  const email = body.email;
+  const password = body.password;
+
+  if(!email || !password) {
+    next('email and password are required');
+  }
+
+  client.query(`
+    select id, email, password
+    from users
+    where email = $1
+  `,
+  [email]
+  )
+    .then(results => {
+      const row = results.rows[0];
+      if(!row || row.password !== password) {
+        throw new Error('Invalid email or password');
+      }
+      res.send({ 
+        id: row.id,
+        email: row.email,
+        name: row.name
+      });
+    })
+    .catch(next);
+
+});
+
+// eslint-disable-next-line
+app.use((err, req, res, next) => {
+  console.log('***SERVER ERROR**\n', err);
+  let message = 'internal server error';
+  if(err.message) message = err.message;
+  else if(typeof err === 'string') message = err;
+  res.status(500).send({ message });
+});
 
 app.listen(PORT, () => console.log('server running...'));
