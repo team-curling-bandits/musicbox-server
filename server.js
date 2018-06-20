@@ -23,7 +23,6 @@ const auth = (req, res, next) => {
 };
 
 app.get('/api/users', auth, (req, res, next) => {
-
   client.query(`
     SELECT  
       u.id,
@@ -120,6 +119,21 @@ app.post('/api/auth/signup', (req, res, next) => {
     })
     .catch(next);
 
+});
+
+app.post('/api/savedsongs', (req, res) => {
+  const body = req.body;
+  const songId = body.song_id;
+
+  client.query(`
+    insert into savedsongs (id, song_id)
+    values ($1, $2)
+    returning *;
+  `,
+  [req.params.id, songId]
+  ).then(result => {
+    res.send(result.rows[0]);
+  });
 });
 
 app.post('/api/auth/signin', (req, res, next) => {
