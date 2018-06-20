@@ -123,6 +123,21 @@ app.post('/api/auth/signup', (req, res, next) => {
 
 });
 
+app.post('/api/savedsongs', (req, res) => {
+  const body = req.body;
+  // const songId = body.song_id;
+
+  client.query(`
+    insert into savedsongs (user_id, song_id)
+    values ($1, $2)
+    returning *;
+  `,
+  [body.userId, body.id]
+  ).then(result => {
+    res.send(result.rows[0]);
+  });
+});
+
 app.post('/api/auth/signin', (req, res, next) => {
   const body = req.body;
   const email = body.email;
@@ -156,7 +171,7 @@ app.post('/api/auth/signin', (req, res, next) => {
 
 // eslint-disable-next-line
 app.use((err, req, res, next) => {
-  console.log('***SERVER ERROR**\n', err);
+  console.log('***SERVER ERROR***\n', err);
   let message = 'internal server error';
   if(err.message) message = err.message;
   else if(typeof err === 'string') message = err;
