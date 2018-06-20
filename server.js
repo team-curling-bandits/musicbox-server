@@ -44,7 +44,8 @@ app.get('/api/savedsongs', auth, (req, res, next) => {
   `)
     .then(result => {
       res.send(result.rows);
-    });
+    })
+    .catch(next);
 });
 
 app.get('/api/users/:id', auth, (req, res, next) => {
@@ -78,7 +79,8 @@ app.get('/api/users/:id', auth, (req, res, next) => {
       user.savedsongs = savedsongs;
 
       res.send(user);
-    });
+    })
+    .catch(next);
 });
 
 app.post('/api/auth/signup', (req, res, next) => {
