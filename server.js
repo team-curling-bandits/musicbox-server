@@ -22,11 +22,12 @@ const auth = (req, res, next) => {
   next();
 };
 
-app.get('/api/users', auth, (req, res, next) => {
+app.get('/api/users', (req, res, next) => {
 
   client.query(`
     SELECT  
       u.id,
+      u.name,
       song_id
     FROM users u
     JOIN savedsongs s
