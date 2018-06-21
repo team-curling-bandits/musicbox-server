@@ -12,16 +12,6 @@ app.use(cors());
 app.use(express.json());
 
 const client = require('./db-client');
-// const auth = (req, res, next) => {
-//   const id = req.get('Authorization');
-//   if(!id || isNaN(id)) {
-//     next('No Authentication');
-//     return;
-//   }
-
-//   req.userId = +id;
-//   next();
-// };
 
 app.get('/api/users', (req, res, next) => {
   client.query(`
