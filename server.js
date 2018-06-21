@@ -12,27 +12,20 @@ app.use(cors());
 app.use(express.json());
 
 const client = require('./db-client');
-const auth = (req, res, next) => {
-  const id = req.get('Authorization');
-  if(!id || isNaN(id)) {
-    next('No Authentication');
-    return;
-  }
+// const auth = (req, res, next) => {
+//   const id = req.get('Authorization');
+//   if(!id || isNaN(id)) {
+//     next('No Authentication');
+//     return;
+//   }
 
-  req.userId = +id;
-  next();
-};
+//   req.userId = +id;
+//   next();
+// };
 
 app.get('/api/users', (req, res, next) => {
-
   client.query(`
-    SELECT  
-      u.id,
-      u.name,
-      song_id
-    FROM users u
-    JOIN savedsongs s
-    ON u.id = s.user_id   
+    SELECT  * FROM users;
   `)
     .then(result => {
       res.send(result.rows);
@@ -53,7 +46,8 @@ app.get('/api/savedsongs/:id', (req, res, next) => {
     .catch(next);
 });
 
-app.get('/api/users/:id', auth, (req, res, next) => {
+
+app.get('/api/users/:id', (req, res, next) => {
   const userPromise = client.query(`
   
   SELECT id, name, email, password
@@ -64,7 +58,7 @@ app.get('/api/users/:id', auth, (req, res, next) => {
 
   const savedSongsPromise = client.query(`
   
-  SELECT id, user_id, song_id, rating, comments
+  SELECT id, user_id, song_id, rating
   FROM savedsongs
   WHERE user_id = $1;
   `,
@@ -152,7 +146,7 @@ app.post('/api/auth/signin', (req, res, next) => {
   }
 
   client.query(`
-    select id, email, password
+    select name, id, email, password
     from users
     where email = $1
   `,
@@ -164,6 +158,7 @@ app.post('/api/auth/signin', (req, res, next) => {
         throw new Error('Invalid email or password');
       }
       res.send({ 
+
         id: row.id,
         email: row.email,
         name: row.name
