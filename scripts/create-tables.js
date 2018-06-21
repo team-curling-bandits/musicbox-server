@@ -11,8 +11,10 @@ client.query(`
        id SERIAL PRIMARY KEY,
        user_id INTEGER NOT NULL REFERENCES users(id),
        song_id VARCHAR(256) NOT NULL,
-       rating INTEGER,
-       comments VARCHAR(1024)
+       artist VARCHAR(256) NOT NULL,
+       title VARCHAR(256) NOT NULL,
+       url VARCHAR(256) NOT NULL,
+       rating INTEGER
    );
 `)
   .then(

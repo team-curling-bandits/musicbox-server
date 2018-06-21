@@ -1,6 +1,8 @@
 [{
   "user_id": "1",
   "song_id": "1",
-  "rating": "5",
-  "comments": "this rocks!"
-}]
+  "artist": "drake",
+  "title": "king of the bling",
+  "url": "http://listen.vo.llnwd.net/g3/1/7/4/0/8/1264880471.mp3",
+  "rating": "5"
+  }]

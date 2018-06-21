@@ -39,10 +39,13 @@ app.get('/api/users', (req, res, next) => {
     .catch(next);
 });
 
-app.get('/api/savedsongs', auth, (req, res, next) => {
+app.get('/api/savedsongs/:id', (req, res, next) => {
+  const id = parseInt(req.params.id);
   client.query(`
-  SELECT * FROM savedsongs;
-  `)
+  SELECT * FROM savedsongs
+  WHERE user_id=$1
+  ORDER BY id ASC;
+  `, [id])
     .then(result => {
       res.send(result.rows);
     })
@@ -128,11 +131,11 @@ app.post('/api/savedsongs', (req, res) => {
   // const songId = body.song_id;
 
   client.query(`
-    insert into savedsongs (user_id, song_id)
-    values ($1, $2)
+    insert into savedsongs (user_id, song_id, artist, title, url)
+    values ($1, $2, $3, $4, $5)
     returning *;
   `,
-  [body.userId, body.id]
+  [body.userId, body.id, body.artist, body.title, body.url]
   ).then(result => {
     res.send(result.rows[0]);
   });
@@ -167,6 +170,18 @@ app.post('/api/auth/signin', (req, res, next) => {
     })
     .catch(next);
 
+});
+app.delete('/api/savedsongs/:id', (req, res, next) => {
+  client.query(`
+    DELETE FROM savedsongs
+    WHERE id=$1
+  `,
+  [req.params.id]
+  )
+    .then(() => {
+      res.send({ removed: true });
+    })
+    .catch(next);
 });
 
 // eslint-disable-next-line

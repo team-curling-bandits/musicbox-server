@@ -19,12 +19,14 @@ Promise.all(
           INSERT INTO savedsongs (
             user_id,
             song_id,
-            rating,
-            comments
+            artist,
+            title,
+            url,
+            rating
           )
-          VALUES ($1, $2, $3, $4)
+          VALUES ($1, $2, $3, $4, $5, $6)
         `,
-        [savedsong.user_id, savedsong.song_id, savedsong.rating, savedsong.comments]
+        [savedsong.user_id, savedsong.song_id, savedsong.artist, savedsong.title, savedsong.url, savedsong.rating]
         ).then(result => result.rows[0]);
       })
     );
