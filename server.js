@@ -50,7 +50,7 @@ app.get('/api/savedsongs/:id', (req, res, next) => {
 app.get('/api/users/:id', (req, res, next) => {
   const userPromise = client.query(`
   
-  SELECT id, name, email, password
+  SELECT id, name, email
   FROM users
   WHERE users.id = $1;
   `,
